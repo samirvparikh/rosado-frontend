@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 480" fill="none">
+  <rect width="400" height="480" fill="#EFE8DF"/>
+  <ellipse cx="200" cy="392" rx="78" ry="14" fill="#1A1614" opacity="0.08"/>
+  <rect x="138" y="168" width="124" height="196" rx="8" fill="#B8956A"/>
+  <rect x="142" y="172" width="116" height="28" fill="#C4A484"/>
+  <rect x="138" y="198" width="124" height="6" fill="#8A6A3E"/>
+  <rect x="150" y="220" width="100" height="2" fill="#D4B896"/>
+  <rect x="150" y="236" width="100" height="2" fill="#D4B896"/>
+  <rect x="150" y="252" width="100" height="2" fill="#D4B896"/>
+  <rect x="150" y="268" width="100" height="2" fill="#D4B896"/>
+  <rect x="150" y="284" width="100" height="2" fill="#D4B896"/>
+  <rect x="150" y="300" width="100" height="2" fill="#D4B896"/>
+  <ellipse cx="200" cy="168" rx="62" ry="16" fill="#C4A484"/>
+  <ellipse cx="200" cy="160" rx="48" ry="10" fill="#E8D5B5"/>
+  <text x="200" y="430" text-anchor="middle" fill="#8A8178" font-family="Georgia, serif" font-size="16" letter-spacing="4">PREMIUM GOLD</text>
+</svg>

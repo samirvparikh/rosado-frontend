@@ -1,0 +1,111 @@
+import { Link, NavLink } from "react-router-dom";
+import { Drawer } from "@/components/ui/Drawer";
+import { useCart } from "@/hooks/useCart";
+import { useAuth } from "@/hooks/useAuth";
+import { useUiStore } from "@/store/uiStore";
+import { useWishlistStore } from "@/store/wishlistStore";
+import { SearchOverlay } from "./SearchOverlay";
+
+const NAV = [
+  { to: "/", label: "Home" },
+  { to: "/shop", label: "Shop" },
+  { to: "/men", label: "Men" },
+  { to: "/women", label: "Women" },
+  { to: "/unisex", label: "Unisex" },
+  { to: "/custom-perfume", label: "Custom Perfume" },
+  { to: "/about", label: "About ROSADO" },
+  { to: "/contact", label: "Contact" },
+];
+
+export function Header() {
+  const { count } = useCart();
+  const { session } = useAuth();
+  const wishlistCount = useWishlistStore((state) => state.productIds.length);
+  const mobileNavOpen = useUiStore((state) => state.mobileNavOpen);
+  const searchOpen = useUiStore((state) => state.searchOpen);
+  const setMobileNav = useUiStore((state) => state.setMobileNav);
+  const setSearch = useUiStore((state) => state.setSearch);
+
+  return (
+    <header className="sticky top-0 z-40 border-b border-sand/80 bg-ivory/95 backdrop-blur-sm">
+      <div className="mx-auto flex max-w-page items-center justify-between px-4 py-4 sm:px-6 lg:px-10">
+        <div className="flex items-center gap-3 lg:hidden">
+          <button
+            type="button"
+            className="text-[11px] uppercase tracking-nav"
+            aria-label="Open menu"
+            onClick={() => setMobileNav(true)}
+          >
+            Menu
+          </button>
+        </div>
+
+        <Link to="/" className="font-display text-2xl tracking-brand text-charcoal sm:text-3xl">
+          ROSADO
+        </Link>
+
+        <nav className="hidden items-center gap-1 xl:gap-1.5 lg:flex" aria-label="Primary">
+          {NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/"}
+              className={({ isActive }) =>
+                `px-3 py-2 text-[13px] uppercase tracking-[0.12em] transition-colors ${
+                  isActive
+                    ? "bg-charcoal text-ivory"
+                    : "text-stone hover:bg-gold hover:text-charcoal"
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+
+        <div className="flex items-center gap-4 text-[11px] uppercase tracking-nav">
+          <button type="button" onClick={() => setSearch(true)} aria-label="Search">
+            Search
+          </button>
+          <Link to="/account/wishlist" className="hidden sm:inline" aria-label={`Wishlist, ${wishlistCount} items`}>
+            Wishlist{wishlistCount ? ` (${wishlistCount})` : ""}
+          </Link>
+          <Link to={session ? "/account" : "/login"} className="hidden sm:inline">
+            Account
+          </Link>
+          <Link to="/cart" aria-label={`Cart, ${count} items`}>
+            Cart{count ? ` (${count})` : ""}
+          </Link>
+        </div>
+      </div>
+
+      <Drawer open={mobileNavOpen} title="ROSADO" onClose={() => setMobileNav(false)} side="left">
+        <nav className="flex flex-col gap-5" aria-label="Mobile">
+          {NAV.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/"}
+              onClick={() => setMobileNav(false)}
+              className={({ isActive }) =>
+                `px-3 py-2.5 text-base uppercase tracking-[0.12em] ${
+                  isActive ? "bg-charcoal text-ivory" : "text-charcoal hover:bg-gold hover:text-charcoal"
+                }`
+              }
+            >
+              {item.label}
+            </NavLink>
+          ))}
+          <Link to="/account" onClick={() => setMobileNav(false)} className="text-[13px] uppercase tracking-nav">
+            Account
+          </Link>
+          <Link to="/account/wishlist" onClick={() => setMobileNav(false)} className="text-[13px] uppercase tracking-nav">
+            Wishlist
+          </Link>
+        </nav>
+      </Drawer>
+
+      <SearchOverlay open={searchOpen} onClose={() => setSearch(false)} />
+    </header>
+  );
+}

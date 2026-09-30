@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #1a1614;
+  background: #f7f3ee;
+  font-family: Outfit, system-ui, sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: #f7f3ee;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+::selection {
+  background: #d9cfc3;
+  color: #1a1614;
+}
+
+:focus-visible {
+  outline: 1px solid #b8956a;
+  outline-offset: 3px;
+}
+
+.luxury-rule {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, #d9cfc3, transparent);
+}
