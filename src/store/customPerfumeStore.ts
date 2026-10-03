@@ -13,6 +13,8 @@ interface CustomPerfumeState {
   selectFragrance: (fragrance: Fragrance) => void;
   selectBottle: (bottle: Bottle) => void;
   selectCap: (cap: Cap) => void;
+  /** Re-derive prices once the fragrance catalog (price source) has loaded. */
+  refreshPrices: () => void;
   reset: () => void;
 }
 
@@ -37,7 +39,9 @@ export const useCustomPerfumeStore = create<CustomPerfumeState>()(
             configuration: withPrices({
               ...state.configuration,
               size,
+              // Bottles and caps are size-specific, so a new size invalidates both.
               bottle: sizeChanged ? null : state.configuration.bottle,
+              cap: sizeChanged ? null : state.configuration.cap,
             }),
           };
         }),
@@ -53,6 +57,7 @@ export const useCustomPerfumeStore = create<CustomPerfumeState>()(
         set((state) => ({
           configuration: withPrices({ ...state.configuration, cap }),
         })),
+      refreshPrices: () => set((state) => ({ configuration: withPrices(state.configuration) })),
       reset: () => set({ step: 1, configuration: EMPTY_CONFIGURATION }),
     }),
     {

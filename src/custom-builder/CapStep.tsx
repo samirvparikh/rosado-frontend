@@ -22,7 +22,7 @@ export function CapStep({
             type="button"
             onClick={() => onSelect(cap)}
             className={cn(
-              "overflow-hidden border text-left",
+              "overflow-hidden rounded-2xl border text-left",
               selectedId === cap.id ? "border-charcoal" : "border-sand hover:border-charcoal/40",
             )}
           >

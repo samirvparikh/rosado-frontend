@@ -28,7 +28,7 @@ export function FragranceStep({
               type="button"
               onClick={() => onSelect(fragrance)}
               className={cn(
-                "overflow-hidden border text-left",
+                "overflow-hidden rounded-2xl border text-left",
                 selected ? "border-charcoal" : "border-sand hover:border-charcoal/40",
               )}
             >

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 300" fill="none">
+  <defs>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#E9DCC8"/>
+      <stop offset="0.35" stop-color="#F4EFE8"/>
+      <stop offset="0.7" stop-color="#F4EFE8"/>
+      <stop offset="1" stop-color="#E9DCC8"/>
+    </linearGradient>
+    <linearGradient id="liquid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B9855A" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#B9855A" stop-opacity="0.9"/>
+    </linearGradient>
+    <linearGradient id="neck" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#CFC3B3"/><stop offset="0.5" stop-color="#F7F3EE"/><stop offset="1" stop-color="#CFC3B3"/>
+    </linearGradient>
+    <clipPath id="body"><path d="M60 30h80l42 46v176l-42 44H60l-42-44V76Z"/></clipPath>
+  </defs>
+  <rect x="80" y="0" width="40" height="26" rx="3" fill="url(#neck)"/><rect x="74" y="22" width="52" height="8" rx="2" fill="#B8956A"/>
+  <g><path d="M60 30h80l42 46v176l-42 44H60l-42-44V76Z" fill="url(#glass)" stroke="#B8AA98" stroke-width="1.5"/></g>
+  <g clip-path="url(#body)"><rect x="0" y="100" width="200" height="210" fill="url(#liquid)"/></g>
+  <g clip-path="url(#body)" opacity="0.55">
+    <rect x="0" y="0" width="200" height="300" fill="url(#glass)" opacity="0.4"/>
+    <rect x="36" y="40" width="7" height="230" rx="3.5" fill="#FFFFFF"/>
+  </g>
+</svg>

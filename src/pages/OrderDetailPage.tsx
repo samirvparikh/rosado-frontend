@@ -6,6 +6,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageMeta } from "@/components/seo/PageMeta";
 import { getOrderById } from "@/services/orderApi";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { labelText } from "@/utils/labelText";
 import type { Order } from "@/types";
 
 export function OrderDetailPage() {
@@ -60,6 +61,8 @@ export function OrderDetailPage() {
                 {item.fragranceName ? <li>Fragrance: {item.fragranceName}</li> : null}
                 {item.bottleName ? <li>Bottle: {item.bottleName}</li> : null}
                 {item.capName ? <li>Cap: {item.capName}</li> : null}
+                {labelText(item) ? <li>Label: {labelText(item)}</li> : null}
+                {item.remarks ? <li className="whitespace-pre-line">Remarks: {item.remarks}</li> : null}
                 <li>Quantity: {item.quantity}</li>
               </ul>
               <dl className="mt-4 max-w-xs space-y-1 text-sm">

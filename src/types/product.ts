@@ -16,7 +16,13 @@ export interface Product {
   shortDescription: string;
   description: string;
   brand: string;
+  /** Admin-entered search keywords. */
+  tags: string[];
   status: EntityStatus;
+  /** Admin's manual In Stock switch. */
+  inStock: boolean;
+  /** True when In Stock is off or no active size has stock left. */
+  soldOut: boolean;
   basePrice?: number;
   salePrice?: number;
   costPrice?: number;
@@ -99,10 +105,22 @@ export interface ProductFilters {
   sort?: "featured" | "price-asc" | "price-desc" | "newest" | "best-selling";
 }
 
+/** A purchasable size as shown on a product card. */
+export interface ProductSizeOption {
+  sizeId: string;
+  displayName: string;
+  mrp: number;
+  sellingPrice: number;
+  inStock: boolean;
+}
+
 export interface ProductListItem extends Product {
   primaryImage: string;
+  /** Next gallery image, swapped in on card hover. */
+  secondaryImage: string | null;
   fromPrice: number;
   defaultSizeId: string;
+  sizeOptions: ProductSizeOption[];
   badges: ProductBadge[];
   audienceIds: string[];
   familyNames: string[];

@@ -27,6 +27,15 @@ export default {
         whisper: "0 1px 0 rgba(26, 22, 20, 0.06)",
         lift: "0 18px 40px -28px rgba(26, 22, 20, 0.35)",
       },
+      keyframes: {
+        marquee: {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+      },
+      animation: {
+        marquee: "marquee 30s linear infinite",
+      },
       maxWidth: {
         page: "1440px",
       },

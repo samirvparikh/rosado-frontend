@@ -42,11 +42,13 @@ export function BottleStep({
               type="button"
               onClick={() => onSelect(bottle)}
               className={cn(
-                "overflow-hidden border text-left",
+                "overflow-hidden rounded-2xl border text-left",
                 selectedId === bottle.id ? "border-charcoal" : "border-sand hover:border-charcoal/40",
               )}
             >
-              <img src={bottle.image} alt={bottle.name} className="h-56 w-full object-cover" />
+              <div className="bg-cream">
+                <img src={bottle.image} alt={bottle.name} className="mx-auto h-56 w-full object-contain p-6" />
+              </div>
               <div className="space-y-1 p-5">
                 <h3 className="font-display text-2xl">{bottle.name}</h3>
                 <p className="text-[11px] uppercase tracking-nav text-stone">{sizeLabel}</p>

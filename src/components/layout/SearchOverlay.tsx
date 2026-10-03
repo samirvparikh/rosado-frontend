@@ -26,7 +26,7 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
           autoFocus
           value={query}
           onChange={(event) => setQuery(event.target.value)}
-          placeholder="Name, fragrance, family…"
+          placeholder="Name, fragrance, family, tag…"
           className="w-full border-b border-sand bg-transparent py-3 text-lg outline-none"
         />
       </label>
@@ -34,10 +34,12 @@ export function SearchOverlay({ open, onClose }: { open: boolean; onClose: () =>
         {results.map((product) => (
           <li key={product.id}>
             <Link to={`/perfumes/${product.slug}`} onClick={onClose} className="flex items-center gap-4">
-              <img src={product.primaryImage} alt={product.name} className="h-16 w-12 object-cover" />
+              <img src={product.primaryImage} alt={product.name} className="h-16 w-12 rounded-lg object-cover" />
               <div>
                 <p className="font-display text-xl">{product.name}</p>
-                <p className="text-xs text-stone">From {formatCurrency(product.fromPrice)}</p>
+                <p className="text-xs text-stone">
+                  {product.soldOut ? "Sold out" : `From ${formatCurrency(product.fromPrice)}`}
+                </p>
               </div>
             </Link>
           </li>

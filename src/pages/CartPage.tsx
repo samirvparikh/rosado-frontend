@@ -7,6 +7,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageMeta } from "@/components/seo/PageMeta";
 import { useCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { labelText } from "@/utils/labelText";
 import { useWishlistStore } from "@/store/wishlistStore";
 import type { CartItem } from "@/types";
 
@@ -23,7 +24,7 @@ function Line({
 }) {
   return (
     <article className="grid gap-4 border-b border-sand py-6 sm:grid-cols-[96px_1fr_auto]">
-      <img src={item.image} alt="" className="h-28 w-24 object-cover" />
+      <img src={item.image} alt="" className="h-28 w-24 rounded-xl object-cover" />
       <div>
         {item.productType === "READY_MADE" ? (
           <>
@@ -40,6 +41,18 @@ function Line({
               <li>{item.bottleName}</li>
               <li>{item.capName}</li>
             </ul>
+            {labelText(item) ? (
+              <p className="mt-2 text-sm text-stone">
+                <span className="text-[11px] uppercase tracking-nav">Label · </span>
+                {labelText(item)}
+              </p>
+            ) : null}
+            {item.remarks ? (
+              <p className="mt-2 whitespace-pre-line text-sm text-stone">
+                <span className="text-[11px] uppercase tracking-nav">Remarks · </span>
+                {item.remarks}
+              </p>
+            ) : null}
           </>
         )}
         <div className="mt-4 flex flex-wrap gap-4">
@@ -90,7 +103,7 @@ export function CartPage() {
                 Continue shopping
               </Link>
             </div>
-            <aside className="h-fit border border-sand p-6">
+            <aside className="h-fit rounded-2xl border border-sand p-6">
               <p className="text-[11px] uppercase tracking-nav text-stone">Summary</p>
               <p className="mt-4 flex justify-between text-sm">
                 <span>Subtotal</span>

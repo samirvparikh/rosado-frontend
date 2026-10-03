@@ -11,6 +11,7 @@ import { useCart } from "@/hooks/useCart";
 import { createOrder, getShippingMethods, quoteCart } from "@/services/orderApi";
 import { ApiError } from "@/services/http";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { labelText } from "@/utils/labelText";
 import type { PaymentMethod, ShippingAddress, ShippingMethod, ShippingMethodId } from "@/types";
 
 interface CheckoutForm extends ShippingAddress {
@@ -179,7 +180,7 @@ export function CheckoutPage() {
               </div>
             </section>
           </div>
-          <aside className="h-fit border border-sand p-6">
+          <aside className="h-fit rounded-2xl border border-sand p-6">
             <h2 className="font-display text-3xl">Order summary</h2>
             <ul className="mt-6 space-y-4 text-sm">
               {items.map((item) => (
@@ -193,6 +194,8 @@ export function CheckoutPage() {
                       <p className="text-stone">
                         {item.bottleName} · {item.capName}
                       </p>
+                      {labelText(item) ? <p className="text-stone">Label: {labelText(item)}</p> : null}
+                      {item.remarks ? <p className="whitespace-pre-line text-stone">Remarks: {item.remarks}</p> : null}
                     </div>
                   ) : (
                     <p>

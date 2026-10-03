@@ -23,6 +23,9 @@ export interface OrderItemSnapshot {
   fragranceName?: string;
   bottleName?: string;
   capName?: string;
+  remarks?: string | null;
+  labelLine1?: string | null;
+  labelLine2?: string | null;
   quantity: number;
   basePrice: number;
   bottlePrice: number;

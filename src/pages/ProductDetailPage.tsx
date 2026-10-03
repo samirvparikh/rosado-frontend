@@ -3,6 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
+import { HeartIcon } from "@/components/ui/HeartIcon";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Price } from "@/components/ui/Price";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
@@ -47,7 +48,8 @@ export function ProductDetailPage() {
         }
         setProduct(detail);
         setSizes(sizeMaster);
-        setSizeId(detail.sizes[0]?.sizeId ?? "");
+        const firstAvailable = detail.sizes.find((row) => row.status === "ACTIVE" && row.stock > 0);
+        setSizeId((firstAvailable ?? detail.sizes[0])?.sizeId ?? "");
         void resolveClassificationNames(detail).then((result) => {
           if (!cancelled) setNames(result);
         });
@@ -67,6 +69,7 @@ export function ProductDetailPage() {
   }, [slug]);
 
   const selectedSize = product?.sizes.find((row) => row.sizeId === sizeId);
+  const soldOut = Boolean(product && (product.soldOut || !selectedSize || selectedSize.stock < 1));
   const images = product?.images ?? [];
 
   const sizeLabel = useMemo(
@@ -75,7 +78,7 @@ export function ProductDetailPage() {
   );
 
   async function add(buyNow = false) {
-    if (!product || !selectedSize) return;
+    if (!product || !selectedSize || soldOut) return;
     setPending(true);
     setMessage("");
     try {
@@ -125,7 +128,7 @@ export function ProductDetailPage() {
             "@type": "Offer",
             priceCurrency: "INR",
             price: selectedSize?.sellingPrice,
-            availability: "https://schema.org/InStock",
+            availability: soldOut ? "https://schema.org/OutOfStock" : "https://schema.org/InStock",
           },
         }}
       />
@@ -139,7 +142,7 @@ export function ProductDetailPage() {
         />
         <div className="mt-8 grid gap-10 lg:grid-cols-2">
           <div>
-            <div className="overflow-hidden bg-cream">
+            <div className="overflow-hidden rounded-2xl bg-cream">
               <img
                 src={images[activeImage]?.imageUrl}
                 alt={images[activeImage]?.alt ?? product.name}
@@ -152,9 +155,9 @@ export function ProductDetailPage() {
                   key={image.id}
                   type="button"
                   onClick={() => setActiveImage(index)}
-                  className={index === activeImage ? "ring-1 ring-charcoal" : ""}
+                  className={`overflow-hidden rounded-xl ${index === activeImage ? "ring-1 ring-charcoal" : ""}`}
                 >
-                  <img src={image.imageUrl} alt={image.alt} className="aspect-square object-cover" />
+                  <img src={image.imageUrl} alt={image.alt} className="aspect-square w-full object-cover" />
                 </button>
               ))}
             </div>
@@ -175,12 +178,17 @@ export function ProductDetailPage() {
               <div className="mt-3 flex flex-wrap gap-2">
                 {product.sizes.map((row) => {
                   const label = sizes.find((size) => size.id === row.sizeId)?.displayName ?? row.sizeId;
+                  const available = product.inStock && row.stock > 0;
                   return (
                     <button
                       key={row.id}
                       type="button"
-                      onClick={() => setSizeId(row.sizeId)}
-                      className={`min-h-11 border px-4 py-2 text-sm ${sizeId === row.sizeId ? "border-charcoal" : "border-sand"}`}
+                      onClick={() => {
+                        setSizeId(row.sizeId);
+                        setMessage("");
+                      }}
+                      title={available ? undefined : "Sold out"}
+                      className={`min-h-11 rounded-full border px-5 py-2 text-sm ${sizeId === row.sizeId ? "border-charcoal bg-charcoal text-ivory" : "border-sand"} ${available ? "" : "line-through opacity-60"}`}
                     >
                       {label}
                     </button>
@@ -188,15 +196,27 @@ export function ProductDetailPage() {
                 })}
               </div>
             </div>
-            <div className="mt-6">
-              <QuantitySelector value={qty} onChange={setQty} />
-            </div>
+            {soldOut ? (
+              <p className="mt-6 inline-block rounded-full bg-charcoal px-4 py-1.5 text-[11px] uppercase tracking-nav text-ivory">
+                Sold Out
+              </p>
+            ) : (
+              <div className="mt-6">
+                <QuantitySelector value={qty} onChange={setQty} />
+              </div>
+            )}
             {message ? <p className="mt-4 text-sm text-rose">{message}</p> : null}
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Button type="button" onClick={() => void add()} disabled={pending}>
-                Add to Cart
+              <Button type="button" onClick={() => void add()} disabled={pending || soldOut} className="rounded-full">
+                {soldOut ? "Sold Out" : "Add to Cart"}
               </Button>
-              <Button type="button" variant="gold" onClick={() => void add(true)} disabled={pending}>
+              <Button
+                type="button"
+                variant="gold"
+                onClick={() => void add(true)}
+                disabled={pending || soldOut}
+                className="rounded-full"
+              >
                 Buy Now
               </Button>
               <Button
@@ -204,10 +224,26 @@ export function ProductDetailPage() {
                 variant="ghost"
                 onClick={() => toggle(product.id)}
                 aria-pressed={wished.includes(product.id)}
+                aria-label={wished.includes(product.id) ? "Remove from wishlist" : "Add to wishlist"}
+                className={wished.includes(product.id) ? "text-gold" : undefined}
               >
-                {wished.includes(product.id) ? "Saved" : "Wishlist"}
+                <HeartIcon filled={wished.includes(product.id)} />
               </Button>
             </div>
+            {product.tags.length ? (
+              <ul className="mt-8 flex flex-wrap gap-2" aria-label="Tags">
+                {product.tags.map((tag) => (
+                  <li key={tag}>
+                    <Link
+                      to={`/shop?query=${encodeURIComponent(tag)}`}
+                      className="inline-block rounded-full border border-sand px-3 py-1 text-[11px] uppercase tracking-nav text-stone transition-colors hover:border-charcoal hover:text-charcoal"
+                    >
+                      #{tag}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
             {names ? (
               <div className="mt-10 space-y-2 text-sm">
                 <p>

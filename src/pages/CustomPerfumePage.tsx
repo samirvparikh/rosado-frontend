@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -9,6 +9,7 @@ import { BuilderSummary } from "@/custom-builder/BuilderSummary";
 import { BottleStep } from "@/custom-builder/BottleStep";
 import { CapStep } from "@/custom-builder/CapStep";
 import { FragranceStep } from "@/custom-builder/FragranceStep";
+import { PerfumePreview } from "@/custom-builder/PerfumePreview";
 import { PreviewStep } from "@/custom-builder/PreviewStep";
 import { SizeStep } from "@/custom-builder/SizeStep";
 import { useBuilderCatalog } from "@/custom-builder/useBuilderCatalog";
@@ -37,10 +38,20 @@ function missingMessage(step: BuilderStep) {
 export function CustomPerfumePage() {
   const navigate = useNavigate();
   const { addCustom } = useCart();
-  const { step, configuration, setStep, selectSize, selectFragrance, selectBottle, selectCap } = useCustomPerfume();
+  const { step, configuration, setStep, selectSize, selectFragrance, selectBottle, selectCap, refreshPrices } =
+    useCustomPerfume();
   const catalog = useBuilderCatalog(configuration.size?.id);
   const [message, setMessage] = useState("");
   const [adding, setAdding] = useState(false);
+  const [remarks, setRemarks] = useState("");
+  const [labelLine1, setLabelLine1] = useState("");
+  const [labelLine2, setLabelLine2] = useState("");
+
+  // The base price is read from the fragrance catalog cache, which is empty
+  // when a saved configuration is restored on page load -- re-price once it arrives.
+  useEffect(() => {
+    if (catalog.fragrances.length) refreshPrices();
+  }, [catalog.fragrances, refreshPrices]);
 
   const ready = useMemo(() => canContinue(step, configuration), [step, configuration]);
 
@@ -73,9 +84,15 @@ export function CustomPerfumePage() {
           bottleId: configuration.bottle.id,
           capId: configuration.cap.id,
           quantity: 1,
+          remarks: remarks.trim() || undefined,
+          labelLine1: labelLine1.trim() || undefined,
+          labelLine2: labelLine2.trim() || undefined,
         },
         configuration.fragrance.image ?? configuration.bottle.image,
       );
+      setRemarks("");
+      setLabelLine1("");
+      setLabelLine2("");
       navigate("/cart");
     } catch (error) {
       setMessage(error instanceof ApiError ? error.message : "Unable to add this perfume. Please try again.");
@@ -105,8 +122,14 @@ export function CustomPerfumePage() {
         <div className="mt-8">
           <BuilderProgress current={step} />
         </div>
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
+        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_340px]">
           <section>
+            <PerfumePreview
+              configuration={configuration}
+              labelLine1={labelLine1}
+              labelLine2={labelLine2}
+              className="mx-auto mb-10 max-w-[280px] lg:hidden"
+            />
             {step === 1 ? (
               <SizeStep sizes={catalog.sizes} selectedId={configuration.size?.id} onSelect={selectSize} />
             ) : null}
@@ -132,7 +155,17 @@ export function CustomPerfumePage() {
             {step === 4 ? (
               <CapStep caps={catalog.caps} selectedId={configuration.cap?.id} onSelect={selectCap} />
             ) : null}
-            {step === 5 ? <PreviewStep configuration={configuration} /> : null}
+            {step === 5 ? (
+              <PreviewStep
+                configuration={configuration}
+                labelLine1={labelLine1}
+                labelLine2={labelLine2}
+                onLabelLine1Change={setLabelLine1}
+                onLabelLine2Change={setLabelLine2}
+                remarks={remarks}
+                onRemarksChange={setRemarks}
+              />
+            ) : null}
             {message ? <p className="mt-6 text-sm text-rose">{message}</p> : null}
             <div className="mt-8 hidden gap-3 sm:flex">
               {step > 1 ? (
@@ -152,7 +185,8 @@ export function CustomPerfumePage() {
             </div>
           </section>
           <div className="hidden lg:block">
-            <div className="sticky top-28">
+            <div className="sticky top-28 space-y-6">
+              <PerfumePreview configuration={configuration} labelLine1={labelLine1} labelLine2={labelLine2} />
               <BuilderSummary configuration={configuration} />
             </div>
           </div>

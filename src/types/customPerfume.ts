@@ -22,6 +22,9 @@ export interface CustomPerfumePayload {
   bottleId: string;
   capId: string;
   quantity: number;
+  remarks?: string;
+  labelLine1?: string;
+  labelLine2?: string;
 }
 
 export interface CustomPerfumeValidated {

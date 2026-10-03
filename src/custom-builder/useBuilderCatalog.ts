@@ -14,14 +14,29 @@ export function useBuilderCatalog(sizeId?: string) {
   const [bottlesError, setBottlesError] = useState<string | null>(null);
   const [catalogError, setCatalogError] = useState<string | null>(null);
 
+  // Sizes and fragrances don't depend on the chosen size -- load them once.
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getSizes(), getFragrances(), getCaps(sizeId)])
-      .then(([nextSizes, nextFragrances, nextCaps]) => {
+    Promise.all([getSizes(), getFragrances()])
+      .then(([nextSizes, nextFragrances]) => {
         if (cancelled) return;
         setSizes(nextSizes);
         setFragrances(nextFragrances);
-        setCaps(nextCaps);
+      })
+      .catch(() => {
+        if (!cancelled) setCatalogError("Unable to load the atelier. Please try again.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Caps can be restricted per size, so they follow the selection.
+  useEffect(() => {
+    let cancelled = false;
+    getCaps(sizeId)
+      .then((nextCaps) => {
+        if (!cancelled) setCaps(nextCaps);
       })
       .catch(() => {
         if (!cancelled) setCatalogError("Unable to load the atelier. Please try again.");

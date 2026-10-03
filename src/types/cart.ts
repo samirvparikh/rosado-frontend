@@ -27,6 +27,9 @@ export interface CustomPerfumeCartItem {
   bottleName: string;
   capId: string;
   capName: string;
+  remarks?: string | null;
+  labelLine1?: string | null;
+  labelLine2?: string | null;
   image: string;
   quantity: number;
   basePrice: number;

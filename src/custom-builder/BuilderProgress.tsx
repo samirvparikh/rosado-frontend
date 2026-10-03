@@ -6,7 +6,7 @@ const STEPS: Array<{ step: BuilderStep; label: string }> = [
   { step: 2, label: "Fragrance" },
   { step: 3, label: "Bottle" },
   { step: 4, label: "Cap" },
-  { step: 5, label: "Preview" },
+  { step: 5, label: "Personalise" },
 ];
 
 export function BuilderProgress({ current }: { current: BuilderStep }) {

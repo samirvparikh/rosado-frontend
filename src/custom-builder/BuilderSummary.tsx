@@ -3,7 +3,7 @@ import type { CustomPerfumeConfiguration } from "@/types";
 
 export function BuilderSummary({ configuration }: { configuration: CustomPerfumeConfiguration }) {
   return (
-    <aside className="border border-sand bg-ivory p-5">
+    <aside className="rounded-2xl border border-sand bg-ivory p-5">
       <p className="text-[11px] uppercase tracking-nav text-stone">Your perfume</p>
       <dl className="mt-4 space-y-2 text-sm">
         <div className="flex justify-between">

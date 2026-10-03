@@ -1,5 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { Drawer } from "@/components/ui/Drawer";
+import { HeartIcon } from "@/components/ui/HeartIcon";
+import { BagIcon, SearchIcon, UserIcon } from "@/components/ui/Icons";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useUiStore } from "@/store/uiStore";
@@ -16,6 +18,14 @@ const NAV = [
   { to: "/about", label: "About ROSADO" },
   { to: "/contact", label: "Contact" },
 ];
+
+function CountBubble({ count }: { count: number }) {
+  return (
+    <span className="absolute -right-2 -top-1.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-gold px-1 text-[9px] leading-none text-charcoal">
+      {count}
+    </span>
+  );
+}
 
 export function Header() {
   const { count } = useCart();
@@ -63,18 +73,41 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4 text-[11px] uppercase tracking-nav">
-          <button type="button" onClick={() => setSearch(true)} aria-label="Search">
-            Search
+        <div className="flex items-center gap-4 sm:gap-5">
+          <button
+            type="button"
+            onClick={() => setSearch(true)}
+            className="transition-colors hover:text-gold"
+            aria-label="Search"
+            title="Search"
+          >
+            <SearchIcon />
           </button>
-          <Link to="/account/wishlist" className="hidden sm:inline" aria-label={`Wishlist, ${wishlistCount} items`}>
-            Wishlist{wishlistCount ? ` (${wishlistCount})` : ""}
+          <Link
+            to="/account/wishlist"
+            className="relative hidden transition-colors hover:text-gold sm:inline-flex"
+            aria-label={`Wishlist, ${wishlistCount} items`}
+            title="Wishlist"
+          >
+            <HeartIcon filled={wishlistCount > 0} />
+            {wishlistCount ? <CountBubble count={wishlistCount} /> : null}
           </Link>
-          <Link to={session ? "/account" : "/login"} className="hidden sm:inline">
-            Account
+          <Link
+            to={session ? "/account" : "/login"}
+            className="hidden transition-colors hover:text-gold sm:inline-flex"
+            aria-label="Account"
+            title="Account"
+          >
+            <UserIcon />
           </Link>
-          <Link to="/cart" aria-label={`Cart, ${count} items`}>
-            Cart{count ? ` (${count})` : ""}
+          <Link
+            to="/cart"
+            className="relative inline-flex transition-colors hover:text-gold"
+            aria-label={`Cart, ${count} items`}
+            title="Cart"
+          >
+            <BagIcon />
+            {count ? <CountBubble count={count} /> : null}
           </Link>
         </div>
       </div>

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useLocation, useSearchParams } from "react-router-dom";
+import { Link, useLocation, useSearchParams } from "react-router-dom";
 import { Drawer } from "@/components/ui/Drawer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -44,8 +44,10 @@ export function ShopPage() {
 
   useEffect(() => {
     const familySlug = params.get("family");
+    const query = params.get("query")?.trim();
     setFilters((current) => ({
       ...current,
+      query: query || undefined,
       audience: presetAudience ? [presetAudience] : current.audience,
       fragranceFamily: familySlug
         ? masters?.fragranceFamilies.filter((item) => item.slug === familySlug).map((item) => item.id)
@@ -117,6 +119,14 @@ export function ShopPage() {
       <PageMeta title={title} description={`Shop ROSADO ${title.toLowerCase()} fragrances.`} />
       <PageShell wide className="py-12">
         <h1 className="font-display text-5xl">{title}</h1>
+        {filters.query ? (
+          <p className="mt-3 text-sm text-stone">
+            Results for “{filters.query}” ·{" "}
+            <Link to={location.pathname} className="underline">
+              Clear
+            </Link>
+          </p>
+        ) : null}
         <div className="mt-6 flex items-center justify-between gap-4">
           <button type="button" className="text-[11px] uppercase tracking-nav lg:hidden" onClick={() => setMobileFilters(true)}>
             Filters

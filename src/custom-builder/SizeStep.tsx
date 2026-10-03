@@ -21,7 +21,7 @@ export function SizeStep({
             type="button"
             onClick={() => onSelect(size)}
             className={cn(
-              "min-h-28 border px-6 py-8 text-left transition-colors",
+              "min-h-28 rounded-2xl border px-6 py-8 text-left transition-colors",
               selectedId === size.id ? "border-charcoal bg-cream" : "border-sand hover:border-charcoal/40",
             )}
           >

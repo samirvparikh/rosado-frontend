@@ -9,3 +9,4 @@ export * from "./customPerfume";
 export * from "./cart";
 export * from "./order";
 export * from "./customer";
+export * from "./offer";
