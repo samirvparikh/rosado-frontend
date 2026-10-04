@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, Navigate, useNavigate, useParams } from "react-router-dom";
 import { Breadcrumb } from "@/components/ui/Breadcrumb";
 import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
@@ -98,6 +98,11 @@ export function ProductDetailPage() {
         <LoadingSkeleton className="h-80" />
       </PageShell>
     );
+  }
+
+  // Custom perfumes are bought through the customizer, not as a fixed size.
+  if (product?.productType === "CUSTOM_PERFUME") {
+    return <Navigate to={`/custom-perfume/${product.slug}`} replace />;
   }
 
   if (error || !product) {

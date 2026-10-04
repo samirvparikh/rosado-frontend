@@ -17,6 +17,8 @@ export interface CustomPerfumeConfiguration {
 }
 
 export interface CustomPerfumePayload {
+  /** CUSTOM_PERFUME product being customised; omitted = default product. */
+  productId?: string | null;
   fragranceId: string;
   sizeId: string;
   bottleId: string;

@@ -187,7 +187,7 @@ export function CheckoutPage() {
                 <li key={item.id}>
                   {item.productType === "CUSTOM_PERFUME" ? (
                     <div>
-                      <p className="text-[11px] uppercase tracking-nav text-gold">Custom ROSADO Perfume</p>
+                      <p className="text-[11px] uppercase tracking-nav text-gold">{item.productName ?? "Custom ROSADO Perfume"}</p>
                       <p>
                         {item.sizeName} · {item.fragranceName}
                       </p>

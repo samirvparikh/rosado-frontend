@@ -50,6 +50,7 @@ export const router = createBrowserRouter([
       { path: "unisex", element: page(<ShopPage />) },
       { path: "perfumes/:slug", element: page(<ProductDetailPage />) },
       { path: "custom-perfume", element: page(<CustomPerfumePage />) },
+      { path: "custom-perfume/:slug", element: page(<CustomPerfumePage />) },
       { path: "cart", element: page(<CartPage />) },
       { path: "checkout", element: page(<CheckoutPage />) },
       { path: "login", element: page(<LoginPage />) },

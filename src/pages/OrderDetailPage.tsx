@@ -6,6 +6,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { PageMeta } from "@/components/seo/PageMeta";
 import { getOrderById } from "@/services/orderApi";
 import { formatCurrency } from "@/utils/formatCurrency";
+import { PerfumePreview } from "@/custom-builder/PerfumePreview";
 import { labelText } from "@/utils/labelText";
 import type { Order } from "@/types";
 
@@ -54,6 +55,7 @@ export function OrderDetailPage() {
         <section className="mt-10 space-y-8">
           {order.items.map((item, index) => (
             <article key={`${item.productName}-${index}`} className="border-t border-sand pt-6">
+              {item.preview ? <PerfumePreview preview={item.preview} compact className="mb-4 w-28 rounded-xl" /> : null}
               <p className="text-[11px] uppercase tracking-nav text-gold">{item.productType}</p>
               <h2 className="font-display text-3xl">{item.productName}</h2>
               <ul className="mt-3 space-y-1 text-sm">

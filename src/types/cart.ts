@@ -1,4 +1,5 @@
 import type { CustomPerfumeValidated } from "./customPerfume";
+import type { PreviewSnapshot } from "./customizer";
 
 export type CartProductType = "READY_MADE" | "CUSTOM_PERFUME";
 
@@ -19,6 +20,8 @@ export interface ReadyMadeCartItem {
 export interface CustomPerfumeCartItem {
   id: string;
   productType: "CUSTOM_PERFUME";
+  productId?: string | null;
+  productName?: string;
   fragranceId: string;
   fragranceName: string;
   sizeId: string;
@@ -31,10 +34,16 @@ export interface CustomPerfumeCartItem {
   labelLine1?: string | null;
   labelLine2?: string | null;
   image: string;
+  /** Layer stack for the cart thumbnail (display only -- the IDs are what get re-priced). */
+  preview?: PreviewSnapshot | null;
   quantity: number;
+  /** Product base price for the size. */
   basePrice: number;
+  fragrancePrice?: number;
   bottlePrice: number;
   capPrice: number;
+  /** fragrance + bottle + cap. */
+  customizationPrice?: number;
   unitPrice: number;
   lineTotal: number;
 }

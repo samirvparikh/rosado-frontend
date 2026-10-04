@@ -10,3 +10,4 @@ export * from "./cart";
 export * from "./order";
 export * from "./customer";
 export * from "./offer";
+export * from "./customizer";

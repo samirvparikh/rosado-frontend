@@ -1,3 +1,4 @@
+import type { PreviewSnapshot } from "./customizer";
 import type { CartItem } from "./cart";
 
 export type OrderStatus = "PLACED" | "CONFIRMED" | "SHIPPED" | "DELIVERED" | "CANCELLED";
@@ -23,6 +24,14 @@ export interface OrderItemSnapshot {
   fragranceName?: string;
   bottleName?: string;
   capName?: string;
+  productId?: string | null;
+  sizeId?: string | null;
+  fragranceId?: string | null;
+  bottleId?: string | null;
+  capId?: string | null;
+  fragrancePrice?: number;
+  customizationPrice?: number;
+  preview?: PreviewSnapshot | null;
   remarks?: string | null;
   labelLine1?: string | null;
   labelLine2?: string | null;

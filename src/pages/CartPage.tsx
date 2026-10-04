@@ -4,6 +4,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { Price } from "@/components/ui/Price";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { PageShell } from "@/components/layout/PageShell";
+import { PerfumePreview } from "@/custom-builder/PerfumePreview";
 import { PageMeta } from "@/components/seo/PageMeta";
 import { useCart } from "@/hooks/useCart";
 import { formatCurrency } from "@/utils/formatCurrency";
@@ -24,7 +25,11 @@ function Line({
 }) {
   return (
     <article className="grid gap-4 border-b border-sand py-6 sm:grid-cols-[96px_1fr_auto]">
-      <img src={item.image} alt="" className="h-28 w-24 rounded-xl object-cover" />
+      {item.productType === "CUSTOM_PERFUME" && item.preview ? (
+        <PerfumePreview preview={item.preview} compact className="w-24 rounded-xl" />
+      ) : (
+        <img src={item.image} alt="" className="h-28 w-24 rounded-xl object-cover" />
+      )}
       <div>
         {item.productType === "READY_MADE" ? (
           <>
@@ -33,8 +38,8 @@ function Line({
           </>
         ) : (
           <>
-            <p className="text-[11px] uppercase tracking-nav text-gold">Custom ROSADO Perfume</p>
-            <h2 className="font-display text-2xl">CUSTOM ROSADO PERFUME</h2>
+            <p className="text-[11px] uppercase tracking-nav text-gold">Custom perfume</p>
+            <h2 className="font-display text-2xl">{item.productName ?? "CUSTOM ROSADO PERFUME"}</h2>
             <ul className="mt-2 space-y-1 text-sm text-stone">
               <li>{item.sizeName}</li>
               <li>{item.fragranceName}</li>

@@ -39,3 +39,33 @@ body {
   height: 1px;
   background: linear-gradient(90deg, transparent, #d9cfc3, transparent);
 }
+
+/* Perfume customizer: a component layer fades in when it is swapped. */
+@keyframes layer-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1.5%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.animate-layer-in {
+  animation: layer-in 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-layer-in {
+    animation: none;
+  }
+}
+
+/* Horizontal option rails on mobile: no visible scrollbar. */
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
