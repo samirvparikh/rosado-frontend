@@ -108,7 +108,8 @@ export function CheckoutPage() {
         items,
       });
       clear();
-      navigate(`/account/orders/${order.id}`, { state: { placed: true } });
+      // The key in the URL keeps the confirmation viewable (and refreshable) for guests.
+      navigate(`/account/orders/${order.id}?key=${encodeURIComponent(order.accessToken)}`, { state: { placed: true } });
     } catch (error) {
       setSubmitError(error instanceof ApiError ? error.message : "Unable to place this order.");
     } finally {

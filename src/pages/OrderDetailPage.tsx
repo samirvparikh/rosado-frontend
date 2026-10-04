@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import { Link, useLocation, useParams, useSearchParams } from "react-router-dom";
+import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { LoadingSkeleton } from "@/components/ui/LoadingSkeleton";
 import { PageShell } from "@/components/layout/PageShell";
 import { PageMeta } from "@/components/seo/PageMeta";
 import { getOrderById } from "@/services/orderApi";
+import { ApiError } from "@/services/http";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { PerfumePreview } from "@/custom-builder/PerfumePreview";
 import { labelText } from "@/utils/labelText";
@@ -12,25 +14,45 @@ import type { Order } from "@/types";
 
 export function OrderDetailPage() {
   const { id = "" } = useParams();
-  const placed = Boolean((useLocation().state as { placed?: boolean } | null)?.placed);
+  const location = useLocation();
+  const placed = Boolean((location.state as { placed?: boolean } | null)?.placed);
+  const accessKey = useSearchParams()[0].get("key");
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [needsSignIn, setNeedsSignIn] = useState(false);
 
   useEffect(() => {
-    getOrderById(id)
+    setLoading(true);
+    setError(null);
+    setNeedsSignIn(false);
+    getOrderById(id, accessKey)
       .then((result) => {
         if (!result) setError("This order could not be found.");
         setOrder(result);
       })
-      .catch(() => setError("Something went wrong. Please try again."))
+      .catch((err) => {
+        if (err instanceof ApiError && err.status === 401) setNeedsSignIn(true);
+        setError(err instanceof ApiError ? err.message : "Something went wrong. Please try again.");
+      })
       .finally(() => setLoading(false));
-  }, [id]);
+  }, [id, accessKey]);
 
   if (loading) {
     return (
       <PageShell className="py-12">
         <LoadingSkeleton className="h-64" />
+      </PageShell>
+    );
+  }
+
+  if (needsSignIn) {
+    return (
+      <PageShell className="py-20 text-center">
+        <p className="text-sm text-stone">{error}</p>
+        <Link to="/login" state={{ from: `${location.pathname}${location.search}` }} className="mt-6 inline-block">
+          <Button>Sign in</Button>
+        </Link>
       </PageShell>
     );
   }
@@ -48,6 +70,9 @@ export function OrderDetailPage() {
       <PageMeta title={`Order #${order.orderNumber}`} description="Order snapshot." />
       <PageShell className="py-12">
         {placed ? <p className="text-[11px] uppercase tracking-nav text-gold">Order placed</p> : null}
+        {placed && accessKey ? (
+          <p className="mt-2 text-xs text-stone">Bookmark this page to view your order again without signing in.</p>
+        ) : null}
         <h1 className="mt-2 font-display text-5xl">Order #{order.orderNumber}</h1>
         <p className="mt-2 text-sm text-stone">
           {new Date(order.createdAt).toLocaleString("en-IN")} · {order.status}
@@ -68,19 +93,24 @@ export function OrderDetailPage() {
                 <li>Quantity: {item.quantity}</li>
               </ul>
               <dl className="mt-4 max-w-xs space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <dt>Base</dt>
-                  <dd>{formatCurrency(item.basePrice)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Bottle</dt>
-                  <dd>{formatCurrency(item.bottlePrice)}</dd>
-                </div>
-                <div className="flex justify-between">
-                  <dt>Cap</dt>
-                  <dd>{formatCurrency(item.capPrice)}</dd>
-                </div>
-                <div className="flex justify-between">
+                {(item.productType === "CUSTOM_PERFUME"
+                  ? ([
+                      // Orders placed before the fragrance/base split carry the full perfume price in "base".
+                      ["Base perfume", item.basePrice, (item.fragrancePrice ?? 0) > 0 && item.basePrice === 0],
+                      ["Fragrance", item.fragrancePrice ?? 0, !item.fragrancePrice],
+                      ["Bottle", item.bottlePrice, false],
+                      ["Cap", item.capPrice, false],
+                    ] as const)
+                  : ([["Price", item.basePrice, false]] as const)
+                )
+                  .filter(([, , hidden]) => !hidden)
+                  .map(([label, amount]) => (
+                    <div key={label} className="flex justify-between">
+                      <dt>{label}</dt>
+                      <dd>{amount > 0 ? formatCurrency(amount) : "Included"}</dd>
+                    </div>
+                  ))}
+                <div className="flex justify-between border-t border-sand pt-1 font-medium">
                   <dt>Line total</dt>
                   <dd>{formatCurrency(item.finalPrice)}</dd>
                 </div>

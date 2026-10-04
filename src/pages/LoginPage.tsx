@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -11,6 +11,9 @@ import type { LoginInput } from "@/types";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  // Pages that send people here (e.g. an order link) pass where to return to; only same-site paths.
+  const from = (useLocation().state as { from?: string } | null)?.from;
+  const returnTo = from && from.startsWith("/") && !from.startsWith("//") ? from : "/account";
   const { login } = useAuth();
   const [error, setError] = useState("");
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<LoginInput>();
@@ -19,7 +22,7 @@ export function LoginPage() {
     setError("");
     try {
       await login(values);
-      navigate("/account");
+      navigate(returnTo, { replace: true });
     } catch (err) {
       setError(err instanceof ApiError ? err.message : "Unable to sign in.");
     }

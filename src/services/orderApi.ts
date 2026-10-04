@@ -21,14 +21,16 @@ export async function quoteCart(
   return apiPost<CartTotals>("/cart/quote", { items, shippingMethod, couponCode });
 }
 
-export async function createOrder(input: CreateOrderInput): Promise<Order> {
-  return apiPost<Order>("/orders", input);
+/** `accessToken` lets whoever placed the order view it without signing in. */
+export async function createOrder(input: CreateOrderInput): Promise<Order & { accessToken: string }> {
+  return apiPost<Order & { accessToken: string }>("/orders", input);
 }
 
 export async function getOrders(): Promise<Order[]> {
   return apiGet<Order[]>("/orders");
 }
 
-export async function getOrderById(id: string): Promise<Order | null> {
-  return apiGet<Order | null>(`/orders/${id}`);
+/** Signed-in owners need no key; guests pass the order's access key. */
+export async function getOrderById(id: string, accessToken?: string | null): Promise<Order | null> {
+  return apiGet<Order | null>(`/orders/${id}`, accessToken ? { token: accessToken } : undefined);
 }
