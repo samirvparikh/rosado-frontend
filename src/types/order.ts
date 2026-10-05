@@ -8,6 +8,9 @@ export type PaymentMethod = "COD" | "UPI" | "CARD";
 export type ShippingMethodId = "standard" | "express";
 
 export interface ShippingAddress {
+  /** Present on saved addresses (account session). */
+  id?: string;
+  isDefault?: boolean;
   fullName: string;
   mobile: string;
   email: string;

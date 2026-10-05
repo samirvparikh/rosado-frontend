@@ -1,18 +1,20 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { AuthPanel } from "@/components/auth/AuthPanel";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { PageShell } from "@/components/layout/PageShell";
 import { PageMeta } from "@/components/seo/PageMeta";
+import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/hooks/useCart";
 import { createOrder, getShippingMethods, quoteCart } from "@/services/orderApi";
 import { ApiError } from "@/services/http";
 import { formatCurrency } from "@/utils/formatCurrency";
 import { labelText } from "@/utils/labelText";
-import type { PaymentMethod, ShippingAddress, ShippingMethod, ShippingMethodId } from "@/types";
+import type { AuthSession, PaymentMethod, ShippingAddress, ShippingMethod, ShippingMethodId } from "@/types";
 
 interface CheckoutForm extends ShippingAddress {
   shippingMethod: ShippingMethodId;
@@ -20,9 +22,25 @@ interface CheckoutForm extends ShippingAddress {
   couponCode?: string;
 }
 
+/** Pre-fill values from the account: default address first, profile as fallback. */
+function savedDetails(session: AuthSession): ShippingAddress {
+  const address = session.addresses.find((a) => a.isDefault) ?? session.addresses[0];
+  return {
+    fullName: address?.fullName || session.customer.fullName || "",
+    mobile: address?.mobile || session.customer.mobile || "",
+    email: address?.email || session.customer.email || "",
+    address: address?.address ?? "",
+    city: address?.city ?? "",
+    state: address?.state ?? "",
+    pincode: address?.pincode ?? "",
+  };
+}
+
 export function CheckoutPage() {
   const navigate = useNavigate();
   const { items, clear } = useCart();
+  const { session, refresh, logout } = useAuth();
+  const signedIn = Boolean(session);
   const [quote, setQuote] = useState<{
     subtotal: number;
     discount: number;
@@ -49,6 +67,8 @@ export function CheckoutPage() {
     register,
     handleSubmit,
     watch,
+    reset,
+    getValues,
     formState: { errors },
   } = useForm<CheckoutForm>({
     defaultValues: {
@@ -56,6 +76,21 @@ export function CheckoutPage() {
       paymentMethod: "UPI",
     },
   });
+
+  // Re-read the account on arrival so pre-fill uses the latest saved details
+  // (and an expired login falls back to the sign-in panel).
+  useEffect(() => {
+    if (signedIn) void refresh();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Pre-fill from the account once signed in -- without overwriting anything typed already.
+  const customerId = session?.customer.id;
+  useEffect(() => {
+    if (!session) return;
+    reset({ ...getValues(), ...savedDetails(session) }, { keepDirtyValues: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [customerId, session?.addresses.length]);
 
   const shippingMethod = watch("shippingMethod");
   const couponCode = watch("couponCode");
@@ -107,6 +142,8 @@ export function CheckoutPage() {
         couponCode: values.couponCode,
         items,
       });
+      // The server saved these details to the account; pull them so the next checkout is pre-filled.
+      await refresh();
       clear();
       // The key in the URL keeps the confirmation viewable (and refreshable) for guests.
       navigate(`/account/orders/${order.id}?key=${encodeURIComponent(order.accessToken)}`, { state: { placed: true } });
@@ -122,10 +159,31 @@ export function CheckoutPage() {
       <PageMeta title="Checkout" description="Complete your ROSADO order." />
       <PageShell className="py-12">
         <h1 className="font-display text-5xl">Checkout</h1>
-        <form onSubmit={handleSubmit(onSubmit)} className="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]">
-          <div className="space-y-10">
+        <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_360px]">
+          {!signedIn ? (
+            <section className="max-w-lg">
+              <h2 className="font-display text-3xl">Sign in to check out</h2>
+              <p className="mt-2 text-sm text-stone">
+                Log in or create an account to place your order. Your details are saved for faster checkout next time.
+              </p>
+              {/* Signing in swaps this panel for the checkout form, pre-filled. */}
+              <AuthPanel className="mt-8" onSuccess={() => window.scrollTo({ top: 0, behavior: "smooth" })} />
+            </section>
+          ) : (
+          <form id="checkout-form" onSubmit={handleSubmit(onSubmit)} className="space-y-10" noValidate>
             <section>
-              <h2 className="font-display text-3xl">Customer details</h2>
+              <div className="flex flex-wrap items-baseline justify-between gap-3">
+                <h2 className="font-display text-3xl">Customer details</h2>
+                <p className="text-xs text-stone">
+                  Signed in as {session?.customer.email} ·{" "}
+                  <button type="button" onClick={logout} className="underline hover:text-charcoal">
+                    Not you?
+                  </button>
+                </p>
+              </div>
+              <p className="mt-2 text-xs text-stone">
+                Any changes here are saved to your account when you place the order.
+              </p>
               <div className="mt-6 grid gap-4 sm:grid-cols-2">
                 <Input label="Full name" {...register("fullName", { required: "Required" })} error={errors.fullName?.message} />
                 <Input label="Mobile" {...register("mobile", { required: "Required", minLength: 10 })} error={errors.mobile?.message} />
@@ -180,8 +238,9 @@ export function CheckoutPage() {
                 />
               </div>
             </section>
-          </div>
-          <aside className="h-fit rounded-2xl border border-sand p-6">
+          </form>
+          )}
+          <aside className="h-fit rounded-2xl border border-sand p-6 lg:sticky lg:top-28">
             <h2 className="font-display text-3xl">Order summary</h2>
             <ul className="mt-6 space-y-4 text-sm">
               {items.map((item) => (
@@ -232,11 +291,17 @@ export function CheckoutPage() {
               </dl>
             ) : null}
             {submitError ? <p className="mt-4 text-sm text-rose">{submitError}</p> : null}
-            <Button type="submit" fullWidth className="mt-6" disabled={pending}>
-              {pending ? "Placing order…" : "Place order"}
-            </Button>
+            {signedIn ? (
+              <Button type="submit" form="checkout-form" fullWidth className="mt-6" disabled={pending}>
+                {pending ? "Placing order…" : "Place order"}
+              </Button>
+            ) : (
+              <p className="mt-6 rounded-xl bg-cream/70 px-4 py-3 text-center text-xs text-stone">
+                Sign in or create an account to place your order.
+              </p>
+            )}
           </aside>
-        </form>
+        </div>
       </PageShell>
     </>
   );

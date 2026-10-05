@@ -1,4 +1,4 @@
-import { apiPost, setAuthToken } from "./http";
+import { apiGet, apiPost, setAuthToken } from "./http";
 import type { AuthSession, LoginInput, RegisterInput } from "@/types";
 
 type SessionResponse = AuthSession & { token?: string };
@@ -13,6 +13,11 @@ export async function login(input: LoginInput): Promise<AuthSession> {
   const { token, ...session } = await apiPost<SessionResponse>("/auth/login", input);
   setAuthToken(token ?? null);
   return session;
+}
+
+/** Fresh profile + saved addresses for the signed-in customer. */
+export async function me(): Promise<AuthSession> {
+  return apiGet<AuthSession>("/auth/me");
 }
 
 export function logout(): void {
