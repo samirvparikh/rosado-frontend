@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/utils/cn";
 
 interface DrawerProps {
@@ -24,7 +25,9 @@ export function Drawer({ open, title, onClose, children, side = "right" }: Drawe
     };
   }, [open, onClose]);
 
-  return (
+  // Portal to <body>: an ancestor with backdrop-filter/transform (e.g. the sticky
+  // header) would otherwise become the containing block for `fixed` and clip the drawer.
+  return createPortal(
     <div className={cn("fixed inset-0 z-50", open ? "pointer-events-auto" : "pointer-events-none")}>
       <button
         type="button"
@@ -37,15 +40,17 @@ export function Drawer({ open, title, onClose, children, side = "right" }: Drawe
       />
       <aside
         role="dialog"
+        aria-hidden={!open}
+        inert={!open}
         aria-modal="true"
         aria-labelledby="drawer-title"
         className={cn(
-          "absolute top-0 flex h-full w-[min(100%,380px)] flex-col bg-ivory transition-transform duration-300",
+          "absolute top-0 flex h-full w-[min(85vw,380px)] flex-col shadow-lift bg-ivory transition-transform duration-300",
           side === "right" ? "right-0" : "left-0",
           open ? "translate-x-0" : side === "right" ? "translate-x-full" : "-translate-x-full",
         )}
       >
-        <div className="flex items-center justify-between border-b border-sand px-6 py-5">
+        <div className="flex items-center justify-between border-b border-sand px-5 py-4 sm:px-6 sm:py-5">
           <h2 id="drawer-title" className="font-display text-2xl">
             {title}
           </h2>
@@ -53,8 +58,9 @@ export function Drawer({ open, title, onClose, children, side = "right" }: Drawe
             Close
           </button>
         </div>
-        <div className="flex-1 overflow-y-auto px-6 py-6">{children}</div>
+        <div className="flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6 sm:py-6">{children}</div>
       </aside>
-    </div>
+    </div>,
+    document.body,
   );
 }

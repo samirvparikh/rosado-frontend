@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 
 interface ModalProps {
   open: boolean;
@@ -24,13 +25,20 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
 
   if (!open) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-charcoal/50 px-4 py-16" role="presentation">
+  // Portal to <body> so a filtered/transformed ancestor cannot clip the fixed overlay.
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-charcoal/50 px-4 py-8 sm:py-16"
+      role="presentation"
+      onClick={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
       <div
         role="dialog"
         aria-modal="true"
         aria-labelledby="modal-title"
-        className="w-full max-w-2xl border border-sand bg-ivory p-6 shadow-lift"
+        className="w-full max-w-2xl border border-sand bg-ivory p-5 shadow-lift sm:p-6"
       >
         <div className="mb-6 flex items-center justify-between">
           <h2 id="modal-title" className="font-display text-2xl">
@@ -42,6 +50,7 @@ export function Modal({ open, title, onClose, children }: ModalProps) {
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

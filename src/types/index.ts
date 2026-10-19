@@ -10,4 +10,6 @@ export * from "./cart";
 export * from "./order";
 export * from "./customer";
 export * from "./offer";
+export * from "./homeSlide";
 export * from "./customizer";
+export * from "./review";

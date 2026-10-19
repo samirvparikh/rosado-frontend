@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ProductGridSkeleton } from "@/components/ui/LoadingSkeleton";
 import { Rating } from "@/components/ui/Rating";
+import { HeroSlider } from "@/components/home/HeroSlider";
 import { PageShell } from "@/components/layout/PageShell";
 import { ProductCard } from "@/components/product/ProductCard";
 import { JsonLd, PageMeta } from "@/components/seo/PageMeta";
@@ -11,16 +12,24 @@ import { getBestSellers, getFeaturedProducts } from "@/services/productApi";
 import { getHomeReviews, type HomeReview } from "@/services/reviewsApi";
 import type { ProductListItem } from "@/types";
 
+// Replace `image` with your own artwork (e.g. "/images/families/fresh.jpg" in public/).
 const FAMILIES = [
-  { name: "Fresh", slug: "fresh" },
-  { name: "Woody", slug: "woody" },
-  { name: "Floral", slug: "floral" },
-  { name: "Oriental", slug: "oriental" },
-  { name: "Citrus", slug: "citrus" },
-  { name: "Sweet", slug: "sweet" },
-  { name: "Musky", slug: "musky" },
-  { name: "Oud", slug: "oud" },
+  { name: "Fresh", slug: "fresh", image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Woody", slug: "woody", image: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Floral", slug: "floral", image: "https://images.unsplash.com/photo-1594035910387-fea47794261f?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Oriental", slug: "oriental", image: "https://images.unsplash.com/photo-1541643600914-78b084683601?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Citrus", slug: "citrus", image: "https://images.unsplash.com/photo-1523293182086-7651a91dcd38?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Sweet", slug: "sweet", image: "https://images.unsplash.com/photo-1615634260167-c8cdede054de?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Musky", slug: "musky", image: "https://images.unsplash.com/photo-1592945403244-b3fbafd7f539?auto=format&fit=crop&w=800&h=800&q=80" },
+  { name: "Oud", slug: "oud", image: "https://images.unsplash.com/photo-1587017539504-67cfbddac569?auto=format&fit=crop&w=800&h=800&q=80" },
 ];
+
+const BEST_SELLER_TABS = [
+  { id: "AUD-MEN", label: "For Men", shopPath: "/men" },
+  { id: "AUD-WOMEN", label: "For Women", shopPath: "/women" },
+] as const;
+
+type BestSellerTab = (typeof BEST_SELLER_TABS)[number]["id"];
 
 const PILLARS = [
   { title: "Premium Fragrances", copy: "Composed with restraint. Nothing decorative." },
@@ -32,18 +41,20 @@ const PILLARS = [
 
 export function HomePage() {
   const [featured, setFeatured] = useState<ProductListItem[]>([]);
-  const [best, setBest] = useState<ProductListItem[]>([]);
+  const [bestTab, setBestTab] = useState<BestSellerTab>(BEST_SELLER_TABS[0].id);
+  const [bestByTab, setBestByTab] = useState<Partial<Record<BestSellerTab, ProductListItem[]>>>({});
+  const [bestError, setBestError] = useState<string | null>(null);
+  const [bestRetry, setBestRetry] = useState(0);
   const [reviews, setReviews] = useState<HomeReview[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    Promise.all([getFeaturedProducts(), getBestSellers(), getHomeReviews()])
-      .then(([a, b, c]) => {
+    Promise.all([getFeaturedProducts(), getHomeReviews()])
+      .then(([a, c]) => {
         if (cancelled) return;
         setFeatured(a);
-        setBest(b);
         setReviews(c);
       })
       .catch(() => {
@@ -56,6 +67,25 @@ export function HomePage() {
       cancelled = true;
     };
   }, []);
+
+  // Best sellers load per tab, once each; switching back reuses the cached list.
+  const best = bestByTab[bestTab];
+  useEffect(() => {
+    if (best) return;
+    let cancelled = false;
+    setBestError(null);
+    getBestSellers(bestTab)
+      .then((items) => {
+        if (!cancelled) setBestByTab((prev) => ({ ...prev, [bestTab]: items }));
+      })
+      .catch(() => {
+        if (!cancelled) setBestError("Unable to load best sellers.");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [bestTab, best, bestRetry]);
+  const activeBestTab = BEST_SELLER_TABS.find((tab) => tab.id === bestTab)!;
 
   return (
     <>
@@ -71,37 +101,7 @@ export function HomePage() {
           url: window.location.origin,
         }}
       />
-      <section className="relative overflow-hidden bg-charcoal text-ivory">
-        <video
-          className="absolute inset-0 h-full w-full object-cover"
-          src="/videos/ROSADO_PERFUME.mp4"
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="metadata"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 bg-charcoal/45" />
-        <PageShell wide className="relative grid min-h-[78vh] items-end py-20 lg:items-center">
-          <div className="max-w-xl">
-            <p className="text-[11px] uppercase tracking-nav text-gold">Maison ROSADO</p>
-            <h1 className="mt-4 font-display text-5xl leading-[0.95] sm:text-6xl lg:text-7xl">
-              Your Fragrance. Your Bottle. Your ROSADO.
-            </h1>
-            <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-              <Link to="/custom-perfume">
-                <Button variant="gold">Create Your Perfume</Button>
-              </Link>
-              <Link to="/shop">
-                <Button variant="secondary" className="border-ivory/40 text-ivory hover:border-ivory">
-                  Shop Perfumes
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </PageShell>
-      </section>
+      <HeroSlider />
 
       <PageShell wide className="py-20">
         <div className="flex items-end justify-between">
@@ -149,31 +149,75 @@ export function HomePage() {
         </PageShell>
       </section>
 
-      <PageShell wide className="py-20">
-        <h2 className="font-display text-4xl">Fragrance families</h2>
-        <div className="mt-8 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <PageShell wide className="py-16 sm:py-20">
+        <h2 className="text-center text-xl uppercase tracking-[0.08em] text-charcoal sm:text-2xl lg:text-3xl">
+          Fragrance families
+        </h2>
+        <div className="mt-8 grid grid-cols-2 gap-3 sm:mt-10 sm:gap-5 lg:grid-cols-4">
           {FAMILIES.map((family) => (
             <Link
               key={family.slug}
               to={`/shop?family=${family.slug}`}
-              className="border border-sand px-5 py-8 transition-colors hover:border-charcoal"
+              className="group relative block aspect-square overflow-hidden rounded-lg bg-cream"
             >
-              <span className="font-display text-2xl">{family.name}</span>
+              <img
+                src={family.image}
+                alt=""
+                loading="lazy"
+                className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+              />
+              <span className="absolute bottom-[6%] left-0 bg-gradient-to-r from-ivory/90 via-ivory/60 to-transparent py-1 pl-3 pr-10 font-display text-xl uppercase leading-tight text-charcoal sm:pl-4 sm:pr-16 sm:text-3xl lg:text-4xl">
+                {family.name}
+              </span>
             </Link>
           ))}
         </div>
       </PageShell>
 
       <PageShell wide className="py-10">
-        <h2 className="font-display text-4xl">Best sellers</h2>
-        {loading ? <div className="mt-10"><ProductGridSkeleton /></div> : null}
-        {!loading && !error ? (
-          <div className="mt-10 grid grid-cols-2 gap-6 lg:grid-cols-4">
-            {best.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
+        <div className="flex flex-col items-center gap-6">
+          <h2 className="font-display text-4xl">Best sellers</h2>
+          <div role="tablist" aria-label="Best sellers by audience" className="inline-flex border border-sand p-1">
+            {BEST_SELLER_TABS.map((tab) => {
+              const selected = tab.id === bestTab;
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  role="tab"
+                  id={`best-tab-${tab.id}`}
+                  aria-selected={selected}
+                  aria-controls="best-panel"
+                  onClick={() => setBestTab(tab.id)}
+                  className={`px-5 py-2 text-[12px] uppercase tracking-nav transition-colors sm:px-8 ${
+                    selected ? "bg-charcoal text-ivory" : "text-stone hover:text-charcoal"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
           </div>
-        ) : null}
+        </div>
+        <div id="best-panel" role="tabpanel" aria-labelledby={`best-tab-${bestTab}`} className="mt-10">
+          {bestError ? <ErrorState message={bestError} onRetry={() => setBestRetry((n) => n + 1)} /> : null}
+          {!best && !bestError ? <ProductGridSkeleton /> : null}
+          {best && best.length === 0 ? (
+            <p className="py-10 text-center text-sm text-stone">No best sellers here yet.</p>
+          ) : null}
+          {best && best.length > 0 ? (
+            <div className="grid grid-cols-2 gap-6 lg:grid-cols-4">
+              {best.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : null}
+          <div className="mt-10 text-center">
+            <Link to={activeBestTab.shopPath} className="text-[12px] uppercase tracking-nav underline underline-offset-4 hover:text-gold">
+              Shop all {activeBestTab.label.replace("For ", "").toLowerCase()}&apos;s perfumes
+            </Link>
+          </div>
+        </div>
       </PageShell>
 
       <section className="bg-charcoal py-20 text-ivory">

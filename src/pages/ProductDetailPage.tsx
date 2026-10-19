@@ -9,6 +9,7 @@ import { Price } from "@/components/ui/Price";
 import { QuantitySelector } from "@/components/ui/QuantitySelector";
 import { Rating } from "@/components/ui/Rating";
 import { PageShell } from "@/components/layout/PageShell";
+import { ProductReviews } from "@/components/product/ProductReviews";
 import { JsonLd, PageMeta } from "@/components/seo/PageMeta";
 import { useCart } from "@/hooks/useCart";
 import { useWishlistStore } from "@/store/wishlistStore";
@@ -169,9 +170,9 @@ export function ProductDetailPage() {
           </div>
           <div>
             <h1 className="font-display text-5xl">{product.name}</h1>
-            <div className="mt-3">
+            <a href="#reviews" className="mt-3 inline-block hover:opacity-80" aria-label="Jump to customer reviews">
               <Rating value={product.rating} count={product.reviewCount} />
-            </div>
+            </a>
             {selectedSize ? (
               <div className="mt-6">
                 <Price amount={selectedSize.sellingPrice} compareAt={selectedSize.mrp} size="lg" />
@@ -294,6 +295,12 @@ export function ProductDetailPage() {
             </div>
           </section>
         ) : null}
+        <ProductReviews
+          product={{ id: product.id, name: product.name, image: images[0]?.imageUrl }}
+          onSummaryChange={(summary) =>
+            setProduct((prev) => (prev ? { ...prev, rating: summary.average, reviewCount: summary.count } : prev))
+          }
+        />
         <p className="mt-12 text-sm text-stone">
           Prefer to compose your own vessel?{" "}
           <Link to="/custom-perfume" className="underline">

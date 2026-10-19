@@ -27,8 +27,11 @@ export async function getFeaturedProducts(): Promise<ProductListItem[]> {
   return apiGet<ProductListItem[]>("/products/featured");
 }
 
-export async function getBestSellers(): Promise<ProductListItem[]> {
-  return apiGet<ProductListItem[]>("/products/best-sellers");
+export async function getBestSellers(audienceId?: string): Promise<ProductListItem[]> {
+  if (!audienceId) return apiGet<ProductListItem[]>("/products/best-sellers");
+  // Same four-item cap as /products/best-sellers, narrowed to one audience.
+  const products = await getProducts({ audience: [audienceId], badges: ["bestSeller"], sort: "best-selling" });
+  return products.slice(0, 4);
 }
 
 export async function searchProducts(query: string): Promise<ProductListItem[]> {

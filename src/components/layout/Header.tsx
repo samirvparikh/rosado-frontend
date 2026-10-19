@@ -1,7 +1,7 @@
 import { Link, NavLink } from "react-router-dom";
 import { Drawer } from "@/components/ui/Drawer";
 import { HeartIcon } from "@/components/ui/HeartIcon";
-import { BagIcon, SearchIcon, UserIcon } from "@/components/ui/Icons";
+import { BagIcon, MenuIcon, SearchIcon, UserIcon } from "@/components/ui/Icons";
 import { useCart } from "@/hooks/useCart";
 import { useAuth } from "@/hooks/useAuth";
 import { useUiStore } from "@/store/uiStore";
@@ -38,30 +38,35 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-40 border-b border-sand/80 bg-ivory/95 backdrop-blur-sm">
-      <div className="mx-auto flex max-w-page items-center justify-between px-4 py-4 sm:px-6 lg:px-10">
-        <div className="flex items-center gap-3 lg:hidden">
+      <div className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-10 xl:flex xl:justify-between">
+        <div className="flex items-center xl:hidden">
           <button
             type="button"
-            className="text-[11px] uppercase tracking-nav"
+            className="-ml-2 inline-flex items-center gap-2 p-2 text-[11px] uppercase tracking-nav transition-colors hover:text-gold"
             aria-label="Open menu"
+            aria-expanded={mobileNavOpen}
             onClick={() => setMobileNav(true)}
           >
-            Menu
+            <MenuIcon className="h-6 w-6" />
+            <span className="hidden sm:inline">Menu</span>
           </button>
         </div>
 
-        <Link to="/" className="font-display text-2xl tracking-brand text-charcoal sm:text-3xl">
+        <Link
+          to="/"
+          className="justify-self-center whitespace-nowrap font-display text-xl tracking-brand text-charcoal sm:text-3xl"
+        >
           ROSADO
         </Link>
 
-        <nav className="hidden items-center gap-1 xl:gap-1.5 lg:flex" aria-label="Primary">
+        <nav className="hidden items-center gap-1 2xl:gap-1.5 xl:flex" aria-label="Primary">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `px-3 py-2 text-[13px] uppercase tracking-[0.12em] transition-colors ${
+                `whitespace-nowrap px-2.5 py-2 text-[13px] uppercase tracking-[0.12em] transition-colors 2xl:px-3 ${
                   isActive
                     ? "bg-charcoal text-ivory"
                     : "text-stone hover:bg-gold hover:text-charcoal"
@@ -73,11 +78,11 @@ export function Header() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-4 sm:gap-5">
+        <div className="flex items-center justify-self-end gap-3 sm:gap-5">
           <button
             type="button"
             onClick={() => setSearch(true)}
-            className="transition-colors hover:text-gold"
+            className="inline-flex p-1 transition-colors hover:text-gold"
             aria-label="Search"
             title="Search"
           >
@@ -113,7 +118,7 @@ export function Header() {
       </div>
 
       <Drawer open={mobileNavOpen} title="ROSADO" onClose={() => setMobileNav(false)} side="left">
-        <nav className="flex flex-col gap-5" aria-label="Mobile">
+        <nav className="flex flex-col gap-1" aria-label="Mobile">
           {NAV.map((item) => (
             <NavLink
               key={item.to}
@@ -121,7 +126,7 @@ export function Header() {
               end={item.to === "/"}
               onClick={() => setMobileNav(false)}
               className={({ isActive }) =>
-                `px-3 py-2.5 text-base uppercase tracking-[0.12em] ${
+                `px-3 py-3 text-sm uppercase tracking-[0.12em] transition-colors ${
                   isActive ? "bg-charcoal text-ivory" : "text-charcoal hover:bg-gold hover:text-charcoal"
                 }`
               }
@@ -129,13 +134,25 @@ export function Header() {
               {item.label}
             </NavLink>
           ))}
-          <Link to="/account" onClick={() => setMobileNav(false)} className="text-[13px] uppercase tracking-nav">
-            Account
-          </Link>
-          <Link to="/account/wishlist" onClick={() => setMobileNav(false)} className="text-[13px] uppercase tracking-nav">
-            Wishlist
-          </Link>
         </nav>
+        <div className="mt-6 flex flex-col gap-1 border-t border-sand pt-6">
+          <Link
+            to={session ? "/account" : "/login"}
+            onClick={() => setMobileNav(false)}
+            className="flex items-center gap-3 px-3 py-3 text-[13px] uppercase tracking-nav text-charcoal hover:text-gold"
+          >
+            <UserIcon />
+            {session ? "Account" : "Sign in"}
+          </Link>
+          <Link
+            to="/account/wishlist"
+            onClick={() => setMobileNav(false)}
+            className="flex items-center gap-3 px-3 py-3 text-[13px] uppercase tracking-nav text-charcoal hover:text-gold"
+          >
+            <HeartIcon filled={wishlistCount > 0} />
+            Wishlist{wishlistCount ? ` (${wishlistCount})` : ""}
+          </Link>
+        </div>
       </Drawer>
 
       <SearchOverlay open={searchOpen} onClose={() => setSearch(false)} />

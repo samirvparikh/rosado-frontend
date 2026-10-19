@@ -56,15 +56,17 @@ interface RequestOptions {
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = "GET", body, query } = options;
   const token = getAuthToken();
+  // FormData (file uploads) is sent as-is so the browser sets the multipart boundary.
+  const isForm = body instanceof FormData;
 
   const response = await fetch(`${API_BASE_URL}${path}${buildQueryString(query)}`, {
     method,
     headers: {
       Accept: "application/json",
-      ...(body !== undefined ? { "Content-Type": "application/json" } : {}),
+      ...(body !== undefined && !isForm ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: body !== undefined ? JSON.stringify(body) : undefined,
+    body: isForm ? body : body !== undefined ? JSON.stringify(body) : undefined,
   });
 
   const isJson = response.headers.get("content-type")?.includes("application/json");

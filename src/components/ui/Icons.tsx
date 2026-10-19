@@ -19,6 +19,30 @@ function Svg({ className = "h-5 w-5", children }: IconProps & { children: React.
   );
 }
 
+export function StarIcon({ filled = false, ...props }: IconProps & { filled?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      stroke="currentColor"
+      strokeWidth={1.2}
+      strokeLinejoin="round"
+      className={props.className ?? "h-5 w-5"}
+      aria-hidden="true"
+    >
+      <path d="M12 2.8l2.8 5.9 6.4.8-4.7 4.4 1.2 6.4L12 17.2l-5.7 3.1 1.2-6.4-4.7-4.4 6.4-.8L12 2.8Z" />
+    </svg>
+  );
+}
+
+export function MenuIcon(props: IconProps) {
+  return (
+    <Svg {...props}>
+      <path d="M3.75 7h16.5M3.75 12h16.5M3.75 17h16.5" />
+    </Svg>
+  );
+}
+
 export function SearchIcon(props: IconProps) {
   return (
     <Svg {...props}>

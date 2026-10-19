@@ -4,7 +4,6 @@ import { Drawer } from "@/components/ui/Drawer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ErrorState } from "@/components/ui/ErrorState";
 import { ProductGridSkeleton } from "@/components/ui/LoadingSkeleton";
-import { Select } from "@/components/ui/Select";
 import { PageShell } from "@/components/layout/PageShell";
 import { FilterSidebar } from "@/components/product/FilterSidebar";
 import { ProductCard } from "@/components/product/ProductCard";
@@ -127,24 +126,10 @@ export function ShopPage() {
             </Link>
           </p>
         ) : null}
-        <div className="mt-6 flex items-center justify-between gap-4">
-          <button type="button" className="text-[11px] uppercase tracking-nav lg:hidden" onClick={() => setMobileFilters(true)}>
+        <div className="mt-6 lg:hidden">
+          <button type="button" className="text-[11px] uppercase tracking-nav" onClick={() => setMobileFilters(true)}>
             Filters
           </button>
-          <Select
-            label="Sort"
-            value={filters.sort ?? "featured"}
-            onChange={(event) =>
-              setFilters({ ...filters, sort: event.target.value as ProductFilters["sort"] })
-            }
-            options={[
-              { value: "featured", label: "Featured" },
-              { value: "price-asc", label: "Price Low → High" },
-              { value: "price-desc", label: "Price High → Low" },
-              { value: "newest", label: "Newest" },
-              { value: "best-selling", label: "Best Selling" },
-            ]}
-          />
         </div>
         <div className="mt-8 grid gap-10 lg:grid-cols-[260px_1fr]">
           <aside className="hidden lg:block">{sidebar}</aside>
