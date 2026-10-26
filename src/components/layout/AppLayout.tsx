@@ -9,8 +9,10 @@ export function AppLayout() {
       <a href="#main" className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:bg-ivory focus:px-3 focus:py-2">
         Skip to content
       </a>
-      <OfferHeader />
-      <Header />
+      <div className="sticky top-0 z-40">
+        <OfferHeader />
+        <Header />
+      </div>
       <main id="main" className="flex-1">
         <Outlet />
       </main>

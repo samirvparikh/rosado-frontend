@@ -58,6 +58,9 @@ export interface Order {
   shippingMethodLabel: string;
   paymentMethod: PaymentMethod;
   couponCode?: string;
+  /** Frozen at checkout: the perfume-page tagline was active when this order was placed. */
+  productOfferActive?: boolean;
+  productOfferText?: string | null;
   items: OrderItemSnapshot[];
   subtotal: number;
   discount: number;

@@ -15,6 +15,7 @@ import { useCart } from "@/hooks/useCart";
 import { useWishlistStore } from "@/store/wishlistStore";
 import { getFragranceById } from "@/services/fragranceApi";
 import { getProductBySlug, resolveClassificationNames } from "@/services/productApi";
+import { getProductOffer } from "@/services/productOfferApi";
 import { getSizes } from "@/services/sizeApi";
 import { ApiError } from "@/services/http";
 import type { FragranceWithNotes, ProductDetail, Size } from "@/types";
@@ -36,6 +37,7 @@ export function ProductDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState("");
+  const [productOffer, setProductOffer] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -68,6 +70,20 @@ export function ProductDetailPage() {
       cancelled = true;
     };
   }, [slug]);
+
+  useEffect(() => {
+    let cancelled = false;
+    getProductOffer()
+      .then((offer) => {
+        if (!cancelled) setProductOffer(offer?.text?.trim() || null);
+      })
+      .catch(() => {
+        // The tagline is supplementary; the product page still works without it.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const selectedSize = product?.sizes.find((row) => row.sizeId === sizeId);
   const soldOut = Boolean(product && (product.soldOut || !selectedSize || selectedSize.stock < 1));
@@ -177,6 +193,11 @@ export function ProductDetailPage() {
               <div className="mt-6">
                 <Price amount={selectedSize.sellingPrice} compareAt={selectedSize.mrp} size="lg" />
               </div>
+            ) : null}
+            {productOffer ? (
+              <p className="mt-4 border-l-4 border-[#9b2c2c] bg-[#fdecea] px-4 py-3 text-sm leading-6 text-ink">
+                {productOffer}
+              </p>
             ) : null}
             <p className="mt-6 text-sm leading-7 text-stone">{product.description}</p>
             <div className="mt-8">

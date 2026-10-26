@@ -107,8 +107,8 @@ Seeded login accounts (email + password, both min 6 chars so they bypass the pub
 
 | Email | Password |
 | --- | --- |
-| `admin@rosado.test` | `123456` |
-| `samir@rosado.test` | `123456` |
+| `admin@rosado.com` | `123456` |
+| `samir@rosado.com` | `123456` |
 
 Both accounts are also flagged `is_admin` and can sign in to the **admin dashboard** at `http://127.0.0.1:8000/admin/login` (see section 8).
 
@@ -137,7 +137,7 @@ Auth uses Laravel Sanctum personal-access tokens (Bearer header), not cookies, s
 A hand-built (no Filament/Nova) Blade + Tailwind v4 admin panel, session-authenticated separately from the storefront's Sanctum API tokens.
 
 - **URL:** `http://127.0.0.1:8000/admin/login`
-- **Login:** `admin@rosado.test` / `123456` or `samir@rosado.test` / `123456` (both seeded with `is_admin = true`)
+- **Login:** `admin@rosado.com` / `123456` or `samir@rosado.test` / `123456` (both seeded with `is_admin = true`)
 - Access is gated by an `EnsureUserIsAdmin` middleware (`is_admin` column on `users`); non-admin accounts are rejected at login.
 
 ```text

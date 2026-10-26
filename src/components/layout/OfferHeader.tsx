@@ -4,7 +4,7 @@ import { getOffers } from "@/services/offerApi";
 import type { Offer } from "@/types";
 
 function OfferItem({ offer }: { offer: Offer }) {
-  const className = "whitespace-nowrap px-8 text-[11px] uppercase tracking-nav";
+  const className = "text-[11px] uppercase tracking-nav";
   const isExternal = !!offer.linkUrl && /^https?:\/\//i.test(offer.linkUrl);
   const isInternal = !!offer.linkUrl && offer.linkUrl.startsWith("/");
   if (!offer.linkUrl || (!isExternal && !isInternal)) return <span className={className}>{offer.text}</span>;
@@ -22,7 +22,7 @@ function OfferItem({ offer }: { offer: Offer }) {
   );
 }
 
-/** Scrolling offer strip; hidden when the backend has no active offers. */
+/** Centered offer strip; hidden when the backend has no active offers. */
 export function OfferHeader() {
   const [offers, setOffers] = useState<Offer[]>([]);
 
@@ -42,23 +42,20 @@ export function OfferHeader() {
 
   if (offers.length === 0) return null;
 
-  // Two identical tracks: translating by -50% loops seamlessly.
-  const track = (hidden: boolean) => (
-    <div className="flex shrink-0 items-center" aria-hidden={hidden || undefined}>
-      {offers.map((offer) => (
-        <span key={offer.id} className="flex items-center">
-          <OfferItem offer={offer} />
-          <span className="text-gold" aria-hidden="true">✦</span>
-        </span>
-      ))}
-    </div>
-  );
-
   return (
-    <section aria-label="Offers" className="group overflow-hidden bg-charcoal py-2.5 text-ivory">
-      <div className="flex w-max animate-marquee group-hover:[animation-play-state:paused] motion-reduce:animate-none">
-        {track(false)}
-        {track(true)}
+    <section aria-label="Offers" className="bg-charcoal px-4 py-2.5 text-center text-ivory">
+      <div className="mx-auto flex max-w-page flex-wrap items-center justify-center gap-x-3 gap-y-1">
+        {offers.map((offer) => (
+          <span key={offer.id} className="inline-flex items-center gap-3">
+            <span className="text-gold" aria-hidden="true">
+              ✦
+            </span>
+            <OfferItem offer={offer} />
+            <span className="text-gold" aria-hidden="true">
+              ✦
+            </span>
+          </span>
+        ))}
       </div>
     </section>
   );

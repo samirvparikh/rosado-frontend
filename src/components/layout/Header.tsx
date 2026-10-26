@@ -37,7 +37,7 @@ export function Header() {
   const setSearch = useUiStore((state) => state.setSearch);
 
   return (
-    <header className="sticky top-0 z-40 border-b border-sand/80 bg-ivory/95 backdrop-blur-sm">
+    <header className="border-b border-sand/80 bg-ivory/95 backdrop-blur-sm">
       <div className="mx-auto grid max-w-page grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:px-10 xl:flex xl:justify-between">
         <div className="flex items-center xl:hidden">
           <button
