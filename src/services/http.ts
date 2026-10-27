@@ -10,7 +10,7 @@ export class ApiError extends Error {
   }
 }
 
-const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "https://admin.rosado.websture.in/api";
+const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL as string | undefined) ?? "http://admin.rosado.websture.in/api";
 
 const TOKEN_KEY = "rosado.token";
 
